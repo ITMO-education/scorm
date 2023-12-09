@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head><title>Goss.js Scorm Sample</title>
+    <meta charset="utf-8">
+
+    <style type="text/css">
+        body {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        h1 {
+            position: absolute;
+            right: 1%;
+            top: 0px;
+            font: bold 18px sans-serif;
+            background: rgba(200, 200, 200, 0.5);
+        }
+
+        .m {
+            border: 1px solid black;
+            border-radius: 14px;
+            font: bold 40px sans-serif;
+            background: rgb(120, 120, 255);
+            cursor: pointer;
+            width: 220px;
+            height: 70px;
+            text-align: center
+        }
+
+        .a {
+            font-size: 35px;
+            color: white;
+            background: red;
+            height: 38px;
+            width: 180px;
+            opacity: 0.7;
+        }
+
+        .c {
+            color: silver
+        }
+
+        #good {
+            background: rgba(0, 255, 0, 0.5);
+            font: bold 100px sans-serif;
+            text-align: center;
+            padding: 50px;
+            position: fixed;
+            left: 5%;
+            width: 80%;
+            top: 5%;
+            height: 80%;
+            display: none
+        }
+
+    </style>
+
+
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script type="text/javascript" src="apiwrapper11.js"></script>
+
+    <script type="text/javascript">{
+		//<![CDATA[
+		let n = 6,
+			i = iden => document.getElementById(iden);
+
+		function ok(obj) {
+			obj.style.background = 'green';
+			$(obj).draggable();
+			$(obj).draggable('destroy');
+			n--;
+			console.log(Math.round((1 - n / 6) * 100))
+			myAPI.SetValue('cmi.score.raw', Math.round((1 - n / 6) * 100));
+			myAPI.SetValue('cmi.score.scaled', Math.round((1 - n / 6) * 100));
+			myAPI.SetValue('cmi.completion_status', '');
+			myAPI.SetValue('cmi.success_status', '');
+			myAPI.Terminate('');
+			myAPI.Initialize('');
+			if (!n) {
+				setTimeout(() => {
+					$('#good').show('slow');
+					document.querySelector('audio').src = 'good.mp3';
+					document.querySelector('audio').play();
+				}, 2000);
+				//воспроизведение после небольшой паузы
+				$('.a').css({'background': 'lime', 'left': '45%'});
+				myAPI.Initialize('');
+				myAPI.SetValue('cmi.score.raw', 100);
+				myAPI.SetValue('cmi.score.scaled', 100);
+				myAPI.SetValue('cmi.completion_status', 'completed');
+				myAPI.SetValue('cmi.success_status', 'passed');
+				myAPI.Terminate('');
+			}
+
+		}
+
+		function no(obj) {
+			obj.style.background = 'red';
+			$(obj).draggable();
+		}
+
+		$(() => {
+			myAPI.Initialize('');
+			let learnerName = myAPI.GetValue('cmi.learner_name');
+			document.querySelector('h1').innerHTML += ` для  ${learnerName} ...`;
+			$('.a').draggable();
+			$('.a').mouseup(check);
+			$('.a').mousedown(playsnd); //при опускании мыши играть произношения
+		});
+
+		function check(event) {
+			try {
+				let tar = event.target
+					, tx1 = tar.offsetLeft, tx2 = tx1 + tar.offsetWidth
+					, ty1 = tar.offsetTop, ty2 = ty1 + tar.offsetHeight
+					, real = i(tar.title)
+					, rx1 = real.offsetLeft, rx2 = rx1 + real.offsetWidth
+					, ry1 = real.offsetTop, ry2 = ry1 + real.offsetHeight;
+				if (tx1 >= rx1 && tx2 <= rx2 && ty1 >= ry1 && ty2 <= ry2) ok(tar); else no(tar);
+			} catch (e) {
+			}
+
+		}
+
+		function playsnd(event) {
+			//играются файлы q1.mp3 и т.п.
+			let file = event.target.title + '.mp3';
+			console.log(file);
+			document.querySelector('audio').src = file;
+			document.querySelector('audio').play();
+
+		}
+
+		//]]>
+	}</script>
+</head>
+<body>
+<h1>Упражнение </h1>
+<video width="50%" height="50%" controls="controls" autoplay="autoplay" poster="what-can-you-see-on-the-horizon.png">
+    <source src="what-can-you-see-on-the-horizon.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'/>
+</video>
+
+<audio>
+    <source src="q1.mp3" type="audio/mpeg"/>
+</audio>  <!--  изначально скрыт -->
+
+<!--   в этом пакете транскрипций не показано, только порядок   -->
+
+<!--   /wɒt/   /kæn/    /juː/ /siː/  /ɒn/ /ðə/ /həˈraɪzn/ ?   -->
+<!--   что/     можешь  ты    видеть    на    горизонте ?   -->
+
+
+<div style="margin-left: 51%; margin-top: -100px">
+    <div class="m c" id="q1">1</div>
+    <div class="m c" id="q2">2</div>
+    <div class="m c" id="q3">3</div>
+    <div class="m c" id="q4">4</div>
+    <div class="m c" id="q5">5</div>
+    <div class="m c" id="q6">6</div>
+</div>
+<div style="margin-left: 10%;margin-top: -50%">
+    <div class="m a" title="q5">on the</div>
+    <div class="m a" title="q1">What</div>
+    <div class="m a" title="q4">see</div>
+    <div class="m a" title="q3">you</div>
+    <div class="m a" title="q6">horizon?</div>
+    <div class="m a" title="q2">can</div>
+</div>
+
+
+<div id="good">Good! <br> /ɡʊd/</div>
+</body>
+</html>
