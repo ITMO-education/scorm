@@ -1,5 +1,5 @@
 import { TestWrapper } from "../components/TestWrapper.jsx";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { doneTests } from "../api/scorm.js";
 
 export function TestWidget() {
@@ -36,9 +36,11 @@ export function TestWidget() {
 
 	const [currentQ, setCurrentQ] = useState(0)
 
+	const [testIsDone, setTestIsDone] = useState(false)
+
 	return (
 		<div>
-			{currentQ < questionBank.length ? <TestWrapper
+			{!testIsDone ? currentQ < questionBank.length ? <TestWrapper
 				question={questionBank[currentQ].text}
 				variants={questionBank[currentQ].variants}
 				sendAnswer={(answer) => {
@@ -47,7 +49,12 @@ export function TestWidget() {
 					}
 					setCurrentQ(currentQ + 1)
 				}}
-			/> : <button onClick={() => doneTests(questionBank.length, localScore)}>Закончить</button>}
+			/> : <button onClick={() => {
+					doneTests(questionBank.length, localScore)
+					setTestIsDone(true)
+				}}>Закончить</button>
+				: <div>Спасибо! Это окно можно закрыть</div>
+			}
 
 		</div>
 	)
